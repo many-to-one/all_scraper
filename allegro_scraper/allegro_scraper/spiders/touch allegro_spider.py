@@ -31,19 +31,49 @@ class AllegroSpider(scrapy.Spider):
             self.log("Access forbidden - 403 error.")
             return
         
+        # MAIN_CARD = '.css-1sw7q4x'
+        # JOB_CARD = '.jobs-ad-card css-1qmjf8h'
+        # TITLE = '.css-mr8wpq::text'
+
+        for job in response.css('div.jobs-ad-card'):
+            # Wyciąganie tytułu oferty pracy
+            job_title = job.css('a h6::text').get()
+            # Wyciąganie linku do oferty pracy
+            job_link = job.css('a::attr(href)').get()
+            
+            # Drukowanie wyników
+            self.log(f'Title: {job_title}')
+            self.log(f'Link: {job_link}')
+            
+            # Można tutaj dodać logikę, która będzie zapisywała dane do pliku lub przekazywała je dalej
+            yield {
+                'title': job_title,
+                'link': response.urljoin(job_link)  # Tworzy pełny URL do oferty pracy
+            }
+
+        # Find the link to the next page
+        next_page = response.css('a[data-testid="pagination-forward"]::attr(href)').get()
+        
+        if next_page:
+            # Construct the full URL and request the next page
+            next_page_url = response.urljoin(next_page)
+            print(' @#@#@#@#@#@ NEXT PAGE @#@#@#@#@#@ ')
+            yield scrapy.Request(url=next_page_url, callback=self.parse)
+
+   
         # print(response)
         # print(response.body.decode('utf-8'))
 
-        data = response.body.decode('utf-8')
-        print('################## DATA ##################', data[120000:140000])
-        print('################## TOTAL LENGTH OF DATA ##################')
-        print(len(data))
+        # data = response.body.decode('utf-8'
+        # print('################## DATA ##################', data[120000:140000])
+        # print('################## TOTAL LENGTH OF DATA ##################')
+        # print(len(data))
 
 
-        # ____________________________# olx.pl # ____________________________#
-        script_tags = response.css("script[type='application/ld+json']")
-        print("################### script_tags ##################", script_tags)
-        # ____________________________# end of olx.pl # ____________________________#
+        # # ____________________________# olx.pl # ____________________________#
+        # script_tags = response.css("script[type='application/ld+json']")
+        # print("################### script_tags ##################", script_tags)
+        # # ____________________________# end of olx.pl # ____________________________#
 
 
 
