@@ -6,14 +6,17 @@ import json
 class AllegroSpider(scrapy.Spider):
     name = "allegro"
     # allowed_domains = ["allegro.pl"]
-    # start_urls = ["https://allegro.pl/kategoria/zabawki-11818"]
+    # start_urls = ["https://allegro.pl/kategoria/zabawki-edukacyjne-11821"]
     # allowed_domains = ["youtube.com"]
     # allowed_domains = ["pracuj.pl"]
     # start_urls = ["https://www.pracuj.pl/praca/badania%20i%20rozw%C3%B3j;cc,5002"] 
     # allowed_domains = ["olx.pl"]
     # start_urls = ["https://www.olx.pl/praca/administracja-biurowa/"]
-    allowed_domains = ["otomoto.pl"]
-    start_urls = ["https://www.otomoto.pl/osobowe"]
+    # allowed_domains = ["otomoto.pl"]
+    # start_urls = ["https://www.otomoto.pl/osobowe"] 
+    allowed_domains = ["amazon.pl"]
+    start_urls = ["https://www.amazon.pl/gp/browse.html?node=20861470031&ref_=nav_em_toys_blocks_0_2_8_4"]
+
 
     custom_settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
@@ -21,8 +24,9 @@ class AllegroSpider(scrapy.Spider):
         'RETRY_HTTP_CODES': [403, 500, 502, 503, 504],  # Retry on these HTTP codes
         'COOKIES_ENABLED': True,
         'ROTATING_PROXY_LIST': [
-            '51.254.69.243:3128',
-            '81.171.24.199:3128',
+            '116.203.28.43:80'
+            # '51.254.69.243:3128',
+            # '81.171.24.199:3128',
         ],
         'DOWNLOADER_MIDDLEWARES': {
             'scrapy.downloadermiddlewares.retry.RetryMiddleware': 90,
@@ -59,6 +63,26 @@ class AllegroSpider(scrapy.Spider):
     #     yield product_info
         # ____________________________# end of allegro.pl # ____________________________#
 
+
+
+    # ____________________________# allegro.pl new # ____________________________#
+    def parse(self, response):
+        if response.status == 403:
+            self.log("Access forbidden - 403 error.")
+            return
+
+        for product in response.css('div._octopus-search-result-card_style_apbSearchResultItem__2-mx4'):
+            # Extract the title
+            title = product.css('h2 a span::text').get()
+
+            if title:
+                # Log the extracted title (for debugging)
+                self.log(f'Product Title: {title}')
+
+                # Yield the result
+                yield {
+                    'title': title
+                }
 
 
 
