@@ -1,15 +1,19 @@
 import scrapy
 import json
 
+# scrapy crawl allegro
+
 class AllegroSpider(scrapy.Spider):
     name = "allegro"
     # allowed_domains = ["allegro.pl"]
     # start_urls = ["https://allegro.pl/kategoria/zabawki-11818"]
     # allowed_domains = ["youtube.com"]
-    allowed_domains = ["pracuj.pl"]
-    start_urls = ["https://www.pracuj.pl/praca/administracja%20biurowa;cc,5001"] 
+    # allowed_domains = ["pracuj.pl"]
+    # start_urls = ["https://www.pracuj.pl/praca/badania%20i%20rozw%C3%B3j;cc,5002"] 
     # allowed_domains = ["olx.pl"]
     # start_urls = ["https://www.olx.pl/praca/administracja-biurowa/"]
+    allowed_domains = ["otomoto.pl"]
+    start_urls = ["https://www.otomoto.pl/osobowe"]
 
     custom_settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
@@ -92,39 +96,91 @@ class AllegroSpider(scrapy.Spider):
 
 
     # ____________________________# pracuj.pl # ____________________________#
+
+    # def parse(self, response):
+    #     if response.status == 403:
+    #         self.log("Access forbidden - 403 error.")
+    #         return
+
+    #     for job in response.css('div[data-test="section-offers"] > div'):
+    #         job_title = job.css('h2 a::text').get()
+    #         job_url = job.css('a[data-test="link-offer"]::attr(href)').get()
+    #         publication_date = job.css('p[data-test="text-added"]::text').get()
+    #         location = job.css('h4::text').get()
+
+    #         # Print the extracted information (for debugging)
+    #         # self.log(f'Title: {job_title}')
+    #         # self.log(f'URL: {job_url}')
+    #         # self.log(f'Publication Date: {publication_date}')
+    #         # self.log(f'Location: {location}')
+
+    #         yield {
+    #             'title': job_title,
+    #             'url': response.urljoin(job_url),  # Form the full URL
+    #             'publication_date': publication_date,
+    #             'location': location
+    #         }
+
+    #     import re
+    #     # Find the link to the next page
+    #     next_page_button = response.css('button[data-test="bottom-pagination-button-next"]')
+        
+    #     if next_page_button:
+    #         # Assume URL changes predictably for next page, e.g., "?page=2", "?page=3", etc.
+    #         # Extract current page number from URL
+    #         current_page = response.url.split('pn=')[-1] if 'pn=' in response.url else '1'
+    #         try:
+    #             next_page_number = int(current_page) + 1
+    #         except ValueError:
+    #             next_page_number = 2
+            
+    #         # Create next page URL
+    #         if 'pn=' in response.url:
+    #             next_page_url = re.sub(r'pn=\d+', f'pn={next_page_number}', response.url)
+    #         else:
+    #             # If there's no page parameter, add one
+    #             next_page_url = f"{response.url}?pn={next_page_number}"
+            
+    #         self.log(f'Navigating to next page: {next_page_url}')
+            
+    #         # Request the next page
+    #         yield scrapy.Request(url=next_page_url, callback=self.parse)
+
+    #     else:
+    #         self.log("No next page button found or last page reached.")
+    # ____________________________# end of pracuj.pl # ____________________________#
+
+
+
+
+
+    # ____________________________# otomoto.pl # ____________________________#
+
     def parse(self, response):
         if response.status == 403:
             self.log("Access forbidden - 403 error.")
             return
 
-        for job in response.css('div[data-test="section-offers"] > div'):
-            job_title = job.css('h2 a::text').get()
-            job_url = job.css('a[data-test="link-offer"]::attr(href)').get()
-            publication_date = job.css('p::text').get()
-            location = job.css('h4::text').get()
+        for job in response.css('div[data-testid="search-results"] > div'):
+            job_title = job.css('h1 a::text').get()
+            # job_url = job.css('a[data-test="link-offer"]::attr(href)').get()
+            # publication_date = job.css('p[data-test="text-added"]::text').get()
+            # location = job.css('h4::text').get()
 
             # Print the extracted information (for debugging)
-            self.log(f'Title: {job_title}')
-            self.log(f'URL: {job_url}')
-            self.log(f'Publication Date: {publication_date}')
-            self.log(f'Location: {location}')
+            # self.log(f'Title: {job_title}')
+            # self.log(f'URL: {job_url}')
+            # self.log(f'Publication Date: {publication_date}')
+            # self.log(f'Location: {location}')
 
             yield {
                 'title': job_title,
-                'url': response.urljoin(job_url),  # Form the full URL
-                'publication_date': publication_date,
-                'location': location
+                # 'url': response.urljoin(job_url),  # Form the full URL
+                # 'publication_date': publication_date,
+                # 'location': location
             }
-
-        # Find the link to the next page
-        # next_page = response.css('a[data-testid="pagination-forward"]::attr(href)').get()
         
-        # if next_page:
-        #     # Construct the full URL and request the next page
-        #     next_page_url = response.urljoin(next_page)
-        #     print(' @#@#@#@#@#@ NEXT PAGE @#@#@#@#@#@ ')
-        #     yield scrapy.Request(url=next_page_url, callback=self.parse)
-    # ____________________________# end of pracuj.pl # ____________________________#
+        # ____________________________# end of otomoto.pl # ____________________________#
 
 
 
@@ -223,7 +279,6 @@ class AllegroSpider(scrapy.Spider):
         # print(mylist)
 
 
-# scrapy crawl allegro
 
 # <div class="mpof_ki mp7g_oh mg9e_8 mj7a_8 m7er_k4 mjyo_6x mgmw_3z _6a66d_i2yJ- mx7m_1 mnyp_co mlkp_ag mwdn_1 mh36_24 mvrt_24 _6a66d_u7-8J">
 #     <div>
