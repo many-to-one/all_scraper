@@ -17,7 +17,8 @@ class AllegroSpider(scrapy.Spider):
     # allowed_domains = ["otomoto.pl"]
     # start_urls = ["https://www.otomoto.pl/osobowe"] 
     allowed_domains = ["amazon.pl"]
-    start_urls = ["https://www.amazon.pl/gp/browse.html?node=20861470031&ref_=nav_em_toys_blocks_0_2_8_4"]
+    # start_urls = ["https://www.amazon.pl/gp/browse.html?node=20861470031&ref_=nav_em_toys_blocks_0_2_8_4"]
+    start_urls = ["https://www.amazon.pl/s?rh=n%3A20861470031&fs=true&ref=lp_20861470031_sar"]
 
 
     custom_settings = {
@@ -91,14 +92,27 @@ class AllegroSpider(scrapy.Spider):
         # self.log(f'Scraping BODY ###############: {response.body}')
 
         soup = BeautifulSoup(response.text, 'html.parser')
-        quotes = soup.find_all('div', {'class': '_octopus-search-result-card_style_apbSearchResultItem__2-mx4'})
+        # quotes = soup.find_all('div', {'class': 'a-section a-spacing-medium _octopus-search-result-card_style_apbSearchResultsContainer__bCqjb'})
+        # quotes = soup.find_all('h2', {'class': 'a-size-mini a-spacing-none a-color-base s-line-clamp-4'})
+        quotes = soup.find_all('span', {'class': 'a-size-base-plus a-color-base a-text-normal'})
         # print('############ TITLES #############', quotes)
-        for quote in quotes:
-            for i in quote:
+        prices = soup.find_all('span', {'class': 'a-price'})
+        # print('############ PRICES #############', price)
 
-                yield {
-                    '############ TITLE #############': i.find_all('span')
-                }
+        print('############ PRODUCT TITLES #############')
+        for idx, quote in enumerate(quotes):
+            title = quote.get_text(strip=True)
+            print(f"{idx + 1}: {title}")
+
+        print('\n############ PRICES #############')
+        for idx, price in enumerate(prices):
+            price_whole = price.find('span', {'class': 'a-price-whole'})
+            price_fraction = price.find('span', {'class': 'a-price-fraction'})
+            if price_whole and price_fraction:
+                print(f"{idx + 1}: {price_whole.get_text()},{price_fraction.get_text()} zł")
+            else:
+                print(f"{idx + 1}: {price.get_text(strip=True)}")
+
 
 
 
