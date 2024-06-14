@@ -1,3 +1,5 @@
+import html
+from bs4 import BeautifulSoup
 import scrapy
 import json
 
@@ -24,9 +26,23 @@ class AllegroSpider(scrapy.Spider):
         'RETRY_HTTP_CODES': [403, 500, 502, 503, 504],  # Retry on these HTTP codes
         'COOKIES_ENABLED': True,
         'ROTATING_PROXY_LIST': [
-            '116.203.28.43:80'
-            # '51.254.69.243:3128',
-            # '81.171.24.199:3128',
+            '50.168.72.119:80',
+            '50.217.226.44:80',
+            '5.189.184.6:80',
+            '195.23.57.78:80',
+            '89.22.120.116:80',
+            '50.223.239.183:80',
+            '34.122.187.196:80',
+            '50.174.145.12:80',
+            '50.207.199.87:80',
+            '50.169.135.10:80',
+            '50.174.7.158:80',
+            '50.168.72.118:80',
+            '104.225.220.233:80',
+            '23.254.231.55:80',
+            '116.203.28.43:80',
+            '51.254.69.243:3128',
+            '81.171.24.199:3128',
         ],
         'DOWNLOADER_MIDDLEWARES': {
             'scrapy.downloadermiddlewares.retry.RetryMiddleware': 90,
@@ -71,18 +87,19 @@ class AllegroSpider(scrapy.Spider):
             self.log("Access forbidden - 403 error.")
             return
 
-        for product in response.css('div._octopus-search-result-card_style_apbSearchResultItem__2-mx4'):
-            # Extract the title
-            title = product.css('h2 a span::text').get()
+        # Debugging: Print the page URL
+        # self.log(f'Scraping BODY ###############: {response.body}')
 
-            if title:
-                # Log the extracted title (for debugging)
-                self.log(f'Product Title: {title}')
+        soup = BeautifulSoup(response.text, 'html.parser')
+        quotes = soup.find_all('div', {'class': '_octopus-search-result-card_style_apbSearchResultItem__2-mx4'})
+        # print('############ TITLES #############', quotes)
+        for quote in quotes:
+            for i in quote:
 
-                # Yield the result
                 yield {
-                    'title': title
+                    '############ TITLE #############': i.find_all('span')
                 }
+
 
 
 
@@ -180,29 +197,29 @@ class AllegroSpider(scrapy.Spider):
 
     # ____________________________# otomoto.pl # ____________________________#
 
-    def parse(self, response):
-        if response.status == 403:
-            self.log("Access forbidden - 403 error.")
-            return
+    # def parse(self, response):
+    #     if response.status == 403:
+    #         self.log("Access forbidden - 403 error.")
+    #         return
 
-        for job in response.css('div[data-testid="search-results"] > div'):
-            job_title = job.css('h1 a::text').get()
-            # job_url = job.css('a[data-test="link-offer"]::attr(href)').get()
-            # publication_date = job.css('p[data-test="text-added"]::text').get()
-            # location = job.css('h4::text').get()
+    #     for job in response.css('div[data-testid="search-results"] > div'):
+    #         job_title = job.css('h1 a::text').get()
+    #         # job_url = job.css('a[data-test="link-offer"]::attr(href)').get()
+    #         # publication_date = job.css('p[data-test="text-added"]::text').get()
+    #         # location = job.css('h4::text').get()
 
-            # Print the extracted information (for debugging)
-            # self.log(f'Title: {job_title}')
-            # self.log(f'URL: {job_url}')
-            # self.log(f'Publication Date: {publication_date}')
-            # self.log(f'Location: {location}')
+    #         # Print the extracted information (for debugging)
+    #         # self.log(f'Title: {job_title}')
+    #         # self.log(f'URL: {job_url}')
+    #         # self.log(f'Publication Date: {publication_date}')
+    #         # self.log(f'Location: {location}')
 
-            yield {
-                'title': job_title,
-                # 'url': response.urljoin(job_url),  # Form the full URL
-                # 'publication_date': publication_date,
-                # 'location': location
-            }
+    #         yield {
+    #             'title': job_title,
+    #             # 'url': response.urljoin(job_url),  # Form the full URL
+    #             # 'publication_date': publication_date,
+    #             # 'location': location
+    #         }
         
         # ____________________________# end of otomoto.pl # ____________________________#
 
